@@ -10,19 +10,19 @@ public class BlockTrail : Block
     private const string SOIL_CODE = "soil";
     private const string SOIL_GRASS_NONE_CODE = "none";
     private const string SOIL_GRASS_SPARSE_CODE = "sparse";
-    private const string PRETRAIL_START_CODE = "soil"; //We are intentionally not including the trailmod: domain here becauase it is appended to the string at runtime.
+    private const string PRETRAIL_START_CODE = "soil"; // We are intentionally not including the trailmod: domain here becauase it is appended to the string at runtime.
     private const string PRETRAIL_END_CODE = "pretrail";
 
     private readonly string[] trailVariants = { "pretrail", "new", "established", "veryestablished", "old" };
 
-    //To Do: Devolve Trails Over Time
+    // To Do: Devolve Trails Over Time
     double lastTrailTouchDay = 0;
 
     public override void OnServerGameTick(IWorldAccessor world, BlockPos pos, object extra = null)
     {
         base.OnServerGameTick(world, pos, extra);
 
-        string endVariant = this.Code.EndVariant();
+        string endVariant = Code.EndVariant();
 
         if (world.Calendar.ElapsedDays - lastTrailTouchDay >= GetTrailDevolveDays(endVariant))
         {
@@ -44,28 +44,28 @@ public class BlockTrail : Block
             //If we are a new trail devolving to pretrail.
             if (finalLevel > 0)
             {
-                string baseCode = this.CodeWithoutParts(1);
+                string baseCode = CodeWithoutParts(1);
                 string newWearVariantCode = trailVariants[finalLevel];
-                devolveBlockCode = this.Code.ShortDomain() + ":" + baseCode + "-" + newWearVariantCode;
+                devolveBlockCode = Code.Domain + ":" + baseCode + "-" + newWearVariantCode;
             }
             else if (finalLevel == 0)
             {
-                string fertilityVariantCode = this.Code.SecondCodePart();
                 devolveBlockCode =
-                    this.Code.ShortDomain() + ":" + PRETRAIL_START_CODE + "-" + fertilityVariantCode + "-" + PRETRAIL_END_CODE;
+                    Code.Domain + ":" + PRETRAIL_START_CODE + "-" + GetFertilityVariantCode() + "-" + PRETRAIL_END_CODE;
             }
             else if (finalLevel < 0)
             {
-                string fertilityVariantCode = this.Code.SecondCodePart();
-                devolveBlockCode = SOIL_CODE + "-" + fertilityVariantCode + "-" + SOIL_GRASS_NONE_CODE;
+                devolveBlockCode = SOIL_CODE + "-" + GetFertilityVariantCode() + "-" + SOIL_GRASS_NONE_CODE;
             }
-
-            Debug.Assert(devolveBlockCode != "");
 
             AssetLocation devolveBlockAsset = new(devolveBlockCode);
             Block devolveBlock = world.GetBlock(devolveBlockAsset);
 
-            Debug.Assert(devolveBlock != null);
+            if (devolveBlock is null)
+            {
+                api.Logger.Error("[trailmodupdated] Unable to get devolve block by code {0}", devolveBlockAsset);
+                return;
+            }
 
             SetLastTrailTouchDay(world.Calendar.ElapsedDays);
             world.BlockAccessor.SetBlock(devolveBlock.Id, pos);
@@ -92,7 +92,7 @@ public class BlockTrail : Block
 
         double daysSinceTouched = trailChunkManager.worldAccessor.Calendar.ElapsedDays - lastTrailTouchDay;
 
-        string endVariant = this.Code.EndVariant();
+        string endVariant = Code.EndVariant();
         double devolveDays = GetTrailDevolveDays(endVariant);
         int devolveLevels = (int)(daysSinceTouched / devolveDays); //This should round down, not up.
 
@@ -104,8 +104,8 @@ public class BlockTrail : Block
 
         if (finalLevel > 0)
         {
-            //Devolve the block to the previous level.
-            string baseCode = this.CodeWithoutParts(1);
+            // Devolve the block to the previous level.
+            string baseCode = CodeWithoutParts(1);
             string newWearVariantCode = trailVariants[finalLevel];
             string devolveBlockCode = baseCode + "-" + newWearVariantCode;
 
@@ -124,11 +124,10 @@ public class BlockTrail : Block
             if (trailChunkManager.BlockPosHasTrailData(pos))
                 trailChunkManager.ClearBlockTouchCount(pos);
         }
-        //if we are new trail devolving to pretrail.
+        // if we are new trail devolving to pretrail.
         else if (finalLevel == 0)
         {
-            string fertilityVariantCode = this.Code.SecondCodePart();
-            string devolveBlockCode = PRETRAIL_START_CODE + "-" + fertilityVariantCode + "-" + PRETRAIL_END_CODE;
+            string devolveBlockCode = PRETRAIL_START_CODE + "-" + GetFertilityVariantCode() + "-" + PRETRAIL_END_CODE;
 
             AssetLocation devolveBlockAsset = GetDevolveBlockAsset(devolveBlockCode);
             Block? devolveBlock = trailChunkManager.worldAccessor.GetBlock(devolveBlockAsset);
@@ -145,18 +144,16 @@ public class BlockTrail : Block
             if (trailChunkManager.BlockPosHasTrailData(pos))
                 trailChunkManager.ClearBlockTouchCount(pos);
         }
-        //if we are native soil
+        // if we are native soil
         else if (finalLevel < 0)
         {
-            string fertilityVariantCode = this.Code.SecondCodePart();
-
-            string devolveToSoilCode = SOIL_CODE + "-" + fertilityVariantCode + "-" + SOIL_GRASS_SPARSE_CODE;
+            string devolveToSoilCode = SOIL_CODE + "-" + GetFertilityVariantCode() + "-" + SOIL_GRASS_SPARSE_CODE;
 
             AssetLocation devolveSoilBlockAsset = new(devolveToSoilCode);
 
             Block devolveSoilBlock = trailChunkManager.worldAccessor.GetBlock(devolveSoilBlockAsset);
 
-            if (devolveSoilBlockAsset is null)
+            if (devolveSoilBlock is null)
             {
                 api.Logger.Error("[trailmodupdated] Unable to get devolve block by code {0}", devolveSoilBlockAsset);
                 return;
@@ -170,7 +167,9 @@ public class BlockTrail : Block
         }
     }
 
-    protected virtual AssetLocation GetDevolveBlockAsset(string code) => new(Code.ShortDomain() + ":" + code);
+    protected virtual AssetLocation GetDevolveBlockAsset(string code) => new(Code.Domain, code);
+
+    protected virtual string GetFertilityVariantCode() => Code.SecondCodePart();
 
     private static double GetTrailDevolveDays(string wearVariant)
     {
