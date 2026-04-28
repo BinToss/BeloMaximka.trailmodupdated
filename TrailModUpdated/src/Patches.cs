@@ -1,6 +1,8 @@
-﻿using HarmonyLib;
+using HarmonyLib;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
@@ -31,9 +33,8 @@ public class OverrideOnEntityCollide
         public float snowLevel;
     }
 
-    private static Queue<DeferredTransform> deferredTransforms = new();
-    private static Queue<DeferredSnowIceTransform> deferredSnowIceTransforms = new();
-    private static IWorldAccessor cachedWorld = null;
+    private static ConcurrentQueue<DeferredTransform> deferredTransforms = new();
+    private static ConcurrentQueue<DeferredSnowIceTransform> deferredSnowIceTransforms = new();
     private const int DEFERRED_BATCH_SIZE = 20;
     private const int SNOW_ICE_BATCH_SIZE = 50;
     private const long DEFERRED_PROCESS_INTERVAL_MS = 500;
@@ -62,8 +63,6 @@ public class OverrideOnEntityCollide
 
         if (entity == null)
             return;
-
-        cachedWorld = world;
 
         //Skip any block with trample protection
         ModSystemTrampleProtection modTramplePro = entity.Api.ModLoader.GetModSystem<ModSystemTrampleProtection>();
@@ -166,12 +165,16 @@ public class OverrideOnEntityCollide
             }
         }
 
-        // Process deferred transforms periodically
-        if (world.ElapsedMilliseconds - lastDeferredProcessTime > DEFERRED_PROCESS_INTERVAL_MS)
+        // Process deferred transforms periodically — only one thread wins the CAS and processes.
+        long currentTime = world.ElapsedMilliseconds;
+        long prevTime = Interlocked.Read(ref lastDeferredProcessTime);
+        if (currentTime - prevTime > DEFERRED_PROCESS_INTERVAL_MS)
         {
-            ProcessDeferredSnowIceTransforms(world);
-            ProcessDeferredTransforms(world);
-            lastDeferredProcessTime = world.ElapsedMilliseconds;
+            if (Interlocked.CompareExchange(ref lastDeferredProcessTime, currentTime, prevTime) == prevTime)
+            {
+                ProcessDeferredSnowIceTransforms(world);
+                ProcessDeferredTransforms(world);
+            }
         }
     }
 
@@ -179,9 +182,8 @@ public class OverrideOnEntityCollide
     {
         int processed = 0;
 
-        while (deferredSnowIceTransforms.Count > 0 && processed < SNOW_ICE_BATCH_SIZE)
+        while (processed < SNOW_ICE_BATCH_SIZE && deferredSnowIceTransforms.TryDequeue(out DeferredSnowIceTransform transform))
         {
-            DeferredSnowIceTransform transform = deferredSnowIceTransforms.Dequeue();
             Block block = world.BlockAccessor.GetBlock(transform.pos);
 
             if (block.Id != transform.blockId)
@@ -245,9 +247,8 @@ public class OverrideOnEntityCollide
         int processed = 0;
         TrailChunkManager trailChunkManager = TrailChunkManager.GetTrailChunkManager();
 
-        while (deferredTransforms.Count > 0 && processed < DEFERRED_BATCH_SIZE)
+        while (processed < DEFERRED_BATCH_SIZE && deferredTransforms.TryDequeue(out DeferredTransform transform))
         {
-            DeferredTransform transform = deferredTransforms.Dequeue();
 
             // Verify block still exists and hasn't changed
             Block currentBlock = world.BlockAccessor.GetBlock(transform.pos);
