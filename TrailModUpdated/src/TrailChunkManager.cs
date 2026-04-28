@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -374,59 +374,62 @@ public class TrailChunkManager
 
     public void Clean(float dt)
     {
-        chunksToRemove.Clear();
-        foreach (IWorldChunk chunk in trailChunkEntries.Keys)
+        lock (trailModificationLock)
         {
-            timedOutBlocks.Clear();
-            foreach (long blockTrailID in trailChunkEntries[chunk].Keys)
+            chunksToRemove.Clear();
+            foreach (IWorldChunk chunk in trailChunkEntries.Keys)
             {
-                TrailBlockPosEntry blockPosEntry = trailChunkEntries[chunk].GetValueSafe(blockTrailID);
-
-                BlockPos posToCheck = blockPosEntry.GetBlockPos();
-
-                //Handle case where block position is invalid.
-                if (posToCheck == null)
+                timedOutBlocks.Clear();
+                foreach (long blockTrailID in trailChunkEntries[chunk].Keys)
                 {
-                    timedOutBlocks.Add(blockTrailID);
-                    continue;
+                    TrailBlockPosEntry blockPosEntry = trailChunkEntries[chunk].GetValueSafe(blockTrailID);
+    
+                    BlockPos posToCheck = blockPosEntry.GetBlockPos();
+    
+                    //Handle case where block position is invalid.
+                    if (posToCheck == null)
+                    {
+                        timedOutBlocks.Add(blockTrailID);
+                        continue;
+                    }
+    
+                    //Handle case where this is an invalid or air block.
+                    Block blockToCheck = worldAccessor.BlockAccessor.GetBlock(posToCheck);
+                    if (blockToCheck.Id == 0)
+                    {
+                        timedOutBlocks.Add(blockTrailID);
+                        continue;
+                    }
+    
+                    //We never time out trail blocks.
+                    if (blockToCheck is BlockTrail)
+                        continue;
+    
+                    //If the block hasn't been touched in the timeout time, clean it up.
+                    if ((worldAccessor.ElapsedMilliseconds - blockPosEntry.lastTouchTime) > TRAIL_POS_MONITOR_TIMEOUT)
+                    {
+                        timedOutBlocks.Add(blockTrailID);
+                    }
                 }
-
-                //Handle case where this is an invalid or air block.
-                Block blockToCheck = worldAccessor.BlockAccessor.GetBlock(posToCheck);
-                if (blockToCheck.Id == 0)
+    
+                Dictionary<long, TrailBlockPosEntry> trailEntries = trailChunkEntries.GetValueSafe(chunk);
+    
+                foreach (long blockToRemove in timedOutBlocks)
                 {
-                    timedOutBlocks.Add(blockTrailID);
-                    continue;
+                    trailEntries.Remove(blockToRemove);
                 }
-
-                //We never time out trail blocks.
-                if (blockToCheck is BlockTrail)
-                    continue;
-
-                //If the block hasn't been touched in the timeout time, clean it up.
-                if ((worldAccessor.ElapsedMilliseconds - blockPosEntry.lastTouchTime) > TRAIL_POS_MONITOR_TIMEOUT)
-                {
-                    timedOutBlocks.Add(blockTrailID);
-                }
+    
+                trailChunkEntries[chunk] = trailEntries;
+    
+                if (trailChunkEntries[chunk].Values.Count() == 0)
+                    chunksToRemove.Add(chunk);
             }
-
-            Dictionary<long, TrailBlockPosEntry> trailEntries = trailChunkEntries.GetValueSafe(chunk);
-
-            foreach (long blockToRemove in timedOutBlocks)
+    
+            foreach (IWorldChunk chunk in chunksToRemove)
             {
-                trailEntries.Remove(blockToRemove);
+                trailChunkEntries.Remove(chunk);
             }
-
-            trailChunkEntries[chunk] = trailEntries;
-
-            if (trailChunkEntries[chunk].Values.Count() == 0)
-                chunksToRemove.Add(chunk);
-        }
-
-        foreach (IWorldChunk chunk in chunksToRemove)
-        {
-            trailChunkEntries.Remove(chunk);
-        }
+        } // end lock
 
         serverApi.Event.RegisterCallback(Clean, ((int)TRAIL_CLEANUP_INTERVAL));
     }
@@ -1000,36 +1003,42 @@ public class TrailChunkManager
 
     public bool BlockPosHasTrailData(BlockPos blockPos)
     {
-        IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
-        Debug.Assert(chunk != null);
-
-        long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
-
-        if (trailChunkEntries.ContainsKey(chunk))
+        lock (trailModificationLock)
         {
-            if (trailChunkEntries[chunk].ContainsKey(blockTrailID))
-                return true;
-        }
+            IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            Debug.Assert(chunk != null);
 
-        return false;
+            long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
+
+            if (trailChunkEntries.ContainsKey(chunk))
+            {
+                if (trailChunkEntries[chunk].ContainsKey(blockTrailID))
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     public TrailBlockPosEntry GetBlockPosTrailData(BlockPos blockPos)
     {
-        IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
-        Debug.Assert(chunk != null);
-
-        if (trailChunkEntries.ContainsKey(chunk))
+        lock (trailModificationLock)
         {
-            long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
+            IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            Debug.Assert(chunk != null);
 
-            if (trailChunkEntries[chunk].ContainsKey(blockTrailID))
-                return trailChunkEntries[chunk][blockTrailID];
+            if (trailChunkEntries.ContainsKey(chunk))
+            {
+                long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
+
+                if (trailChunkEntries[chunk].ContainsKey(blockTrailID))
+                    return trailChunkEntries[chunk][blockTrailID];
+            }
+
+            Debug.Assert(false, "BlockPos does not have trail data, call BlockPosHasTrailData to check before calling this function.");
+
+            return new TrailBlockPosEntry();
         }
-
-        Debug.Assert(false, "BlockPos does not have trail data, call BlockPosHasTrailData to check before calling this function.");
-
-        return new TrailBlockPosEntry();
     }
 
     //Save From Mod Chunk
