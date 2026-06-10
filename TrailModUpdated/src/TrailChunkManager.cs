@@ -914,7 +914,7 @@ public class TrailChunkManager
                     TrailBlockPosEntry entryToUpdate = trailChunkEntries[chunk].GetValueSafe(blockTrailID);
                     bool shouldTryTransform = entryToUpdate.BlockTouched(
                         touchEnt.EntityId,
-                        touchEnt.ServerPos,
+                        touchEnt.Pos,
                         touchEnt.World.ElapsedMilliseconds
                     );
 
@@ -931,7 +931,7 @@ public class TrailChunkManager
                     TrailBlockPosEntry trailBlockEntry = new(
                         blockPos,
                         touchEnt.EntityId,
-                        touchEnt.ServerPos,
+                        touchEnt.Pos,
                         touchEnt.World.ElapsedMilliseconds,
                         1
                     );
@@ -949,7 +949,7 @@ public class TrailChunkManager
                 TrailBlockPosEntry trailBlockEntry = new(
                     blockPos,
                     touchEnt.EntityId,
-                    touchEnt.ServerPos,
+                    touchEnt.Pos,
                     touchEnt.World.ElapsedMilliseconds,
                     1
                 );
@@ -1135,7 +1135,7 @@ public class TrailChunkManager
         if (selBox == null)
             return false;
 
-        Vec3d posDeltaFlat = blockPos.ToVec3d() - ent.ServerPos.XYZ;
+        Vec3d posDeltaFlat = blockPos.ToVec3d() - ent.Pos.XYZ;
 
         float boundsMin = -Math.Max(1, selBox.X);
         float boundsMax = Math.Max(1, selBox.X);

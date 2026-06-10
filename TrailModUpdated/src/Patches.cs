@@ -83,7 +83,7 @@ public class OverrideOnEntityCollide
             if (pe == null)
                 continue;
 
-            double distSq = pe.ServerPos.SquareDistanceTo(entity.ServerPos);
+            double distSq = pe.Pos.SquareDistanceTo(entity.Pos);
             if (distSq <= 100) // 10x10
             {
                 playerNearby = true;
@@ -100,7 +100,7 @@ public class OverrideOnEntityCollide
                 if (pe == null)
                     continue;
 
-                if (pe.ServerPos.SquareDistanceTo(entity.ServerPos) <= 22500) // 150x150
+                if (pe.Pos.SquareDistanceTo(entity.Pos) <= 22500) // 150x150
                 {
                     anyNearby = true;
                     break;
@@ -128,7 +128,7 @@ public class OverrideOnEntityCollide
         if (shouldTrackTrailData)
         {
             //We only touch blocks we collide with the top of.
-            if (facing == BlockFacing.UP && pos.Y < entity.ServerPos.Y)
+            if (facing == BlockFacing.UP && pos.Y < entity.Pos.Y)
             {
                 // Always track trail data within 150 blocks
                 trailChunkManager.AddOrUpdateBlockPosTrailData(world, __instance, pos, entity);
