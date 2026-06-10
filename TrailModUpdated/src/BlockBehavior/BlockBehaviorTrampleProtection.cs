@@ -7,7 +7,7 @@ namespace TrailModUpdated;
 
 public class BlockBehaviorTrampleProtection(Block block) : BlockBehavior(block)
 {
-    public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref EnumHandling handling)
+    public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier, ref EnumHandling handling)
     {
         //Remove Trample Protection From Block.
         ModSystemTrampleProtection modTramplePro;
@@ -19,7 +19,7 @@ public class BlockBehaviorTrampleProtection(Block block) : BlockBehavior(block)
             modTramplePro.TryRemoveTrampleProtection(pos, byPlayer, ref errorCode);
         }
 
-        base.OnBlockBroken(world, pos, byPlayer, ref handling);
+        base.OnBlockBroken(world, pos, byPlayer, dropQuantityMultiplier, ref handling);
     }
 
     public override void OnBlockExploded(
