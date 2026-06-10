@@ -1200,7 +1200,7 @@ public class TrailChunkManager
 
         if (plantBlock.BlockMaterial == EnumBlockMaterial.Plant)
         {
-            if (plantBlock is BlockTallGrass)
+            if (plantBlock.Variant.ContainsKey("tallgrass"))
             {
                 if (!TrailModGlobals.OnlyTrampleGrassOnTrailCreation || groundIsTrail)
                     return ETrailTrampleType.TALLGRASS;
@@ -1245,7 +1245,7 @@ public class TrailChunkManager
             if (block is BlockFern)
                 return false;
 
-            if (block is BlockTallGrass)
+            if (block.Variant.ContainsKey("tallgrass"))
                 return false;
 
             if (block is BlockLupine)

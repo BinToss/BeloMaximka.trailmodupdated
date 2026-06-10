@@ -207,9 +207,9 @@ public class OverrideOnEntityCollide
                                 world.BlockAccessor.SetBlock(newSnowBlock.Id, transform.pos);
                             }
                         }
-                        else if (block is BlockTallGrass tallGrass)
+                        else if (block.Variant.ContainsKey("tallgrass"))
                         {
-                            Block baseTallGrassBlock = world.GetBlock(tallGrass.CodeWithVariant("cover", "snow"));
+                            Block baseTallGrassBlock = world.GetBlock(block.CodeWithVariant("cover", "snow"));
                             world.BlockAccessor.SetBlock(baseTallGrassBlock.Id, transform.pos);
                         }
                     }
