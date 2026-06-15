@@ -10,7 +10,7 @@ using Vintagestory.GameContent;
 namespace TrailModUpdated;
 
 //////////////////////////////////////////////////////////////////////////////////////
-///PATCHING TO ADD A UNIVERAL SET LOCATION FOR LAST ENTITY TO ATTACK ON ENTITY AGENT//
+///PATCHING TO ADD A UNIVERSAL SET LOCATION FOR LAST ENTITY TO ATTACK ON ENTITY AGENT//
 //////////////////////////////////////////////////////////////////////////////////////
 
 [HarmonyPatch(typeof(Block))]
