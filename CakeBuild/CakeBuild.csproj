@@ -12,8 +12,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
-    </Reference>
+    <Reference Include="VintagestoryAPI"
+      HintPath="$(VINTAGE_STORY)/VintagestoryAPI.dll" />
   </ItemGroup>
 </Project>
