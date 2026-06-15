@@ -2,6 +2,7 @@
     "recommendations": [
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.csharp",
-        "ms-dotnettools.vscode-dotnet-runtime"
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "blueglassblock.better-json5"
     ]
 }
