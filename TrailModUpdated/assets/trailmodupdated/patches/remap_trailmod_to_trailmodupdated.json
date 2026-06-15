@@ -1,0 +1,12 @@
+[
+  {
+    file: "game:config/remaps.json",
+    op: "Add",
+    path: "/game:remap_trailmod_to_trailmodupdated",
+    value: [
+      "/bir remapq trailmod:block/stone/cairn trailmodupdated:block/stone/cairn force",
+      "/bir remapq trailmod:block/soil trailmodupdated:block/soil force",
+      "/bir remapq trailmod:block/trail trailmodupdated:block/trail force",
+    ]
+  }
+]
