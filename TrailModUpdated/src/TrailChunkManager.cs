@@ -383,16 +383,16 @@ public class TrailChunkManager
                 foreach (long blockTrailID in trailChunkEntries[chunk].Keys)
                 {
                     TrailBlockPosEntry blockPosEntry = trailChunkEntries[chunk].GetValueSafe(blockTrailID);
-    
+
                     BlockPos posToCheck = blockPosEntry.GetBlockPos();
-    
+
                     //Handle case where block position is invalid.
                     if (posToCheck == null)
                     {
                         timedOutBlocks.Add(blockTrailID);
                         continue;
                     }
-    
+
                     //Handle case where this is an invalid or air block.
                     Block blockToCheck = worldAccessor.BlockAccessor.GetBlock(posToCheck);
                     if (blockToCheck.Id == 0)
@@ -400,31 +400,31 @@ public class TrailChunkManager
                         timedOutBlocks.Add(blockTrailID);
                         continue;
                     }
-    
+
                     //We never time out trail blocks.
                     if (blockToCheck is BlockTrail)
                         continue;
-    
+
                     //If the block hasn't been touched in the timeout time, clean it up.
                     if ((worldAccessor.ElapsedMilliseconds - blockPosEntry.lastTouchTime) > TRAIL_POS_MONITOR_TIMEOUT)
                     {
                         timedOutBlocks.Add(blockTrailID);
                     }
                 }
-    
+
                 Dictionary<long, TrailBlockPosEntry> trailEntries = trailChunkEntries.GetValueSafe(chunk);
-    
+
                 foreach (long blockToRemove in timedOutBlocks)
                 {
                     trailEntries.Remove(blockToRemove);
                 }
-    
+
                 trailChunkEntries[chunk] = trailEntries;
-    
+
                 if (trailChunkEntries[chunk].Values.Count() == 0)
                     chunksToRemove.Add(chunk);
             }
-    
+
             foreach (IWorldChunk chunk in chunksToRemove)
             {
                 trailChunkEntries.Remove(chunk);
