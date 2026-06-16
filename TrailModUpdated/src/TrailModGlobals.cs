@@ -1,8 +1,12 @@
-﻿namespace TrailModUpdated;
+﻿using System;
+
+namespace TrailModUpdated;
 
 public static class TrailModGlobals
 {
-    public static bool CeativeTrampling { get; set; } = false;
+    [Obsolete($"Use {nameof(CreativeTrampling)} instead.")]
+    public static bool CeativeTrampling { get => CreativeTrampling; set => CreativeTrampling = value; }
+    public static bool CreativeTrampling { get; set; } = false;
     public static bool FoliageTrampleSounds { get; set; } = true;
     public static bool OnlyPlayersCreateTrails { get; set; } = false;
     public static bool FlowerTrampling { get; set; } = true;

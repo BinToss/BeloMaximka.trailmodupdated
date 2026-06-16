@@ -151,7 +151,7 @@ public class TrailModCore : ModSystem
     private void ApplyConfigGlobalConsts()
     {
         //GENERAL SETTINGS
-        TrailModGlobals.CeativeTrampling = config.CreativeTrampling;
+        TrailModGlobals.CreativeTrampling = config.CreativeTrampling;
         TrailModGlobals.FoliageTrampleSounds = config.FoliageTrampleSounds;
         TrailModGlobals.OnlyPlayersCreateTrails = config.OnlyPlayersCreateTrails;
         TrailModGlobals.FlowerTrampling = config.FlowerTrampling;
