@@ -119,7 +119,7 @@ public class ItemTrowel : Item
         int prev = slot?.Itemstack?.Attributes?.GetInt("trailmodPrevToolMode", -1) ?? -1;
         if (current != prev)
         {
-            slot.Itemstack.Attributes.SetInt("trailmodPrevToolMode", current);
+            slot?.Itemstack?.Attributes.SetInt("trailmodPrevToolMode", current);
             lastOverlayCenter = null;
         }
 
@@ -139,6 +139,7 @@ public class ItemTrowel : Item
         ref EnumHandHandling handling
     )
     {
+        // todo: Attributes is never null
         int mode = slot?.Itemstack?.Attributes?.GetInt("toolMode", 0) ?? 0;
         if (mode == 0)
         {
@@ -391,10 +392,9 @@ public class ItemTrowel : Item
 
     private void UpdateSelectionOverlayClient(EntityAgent byEntity)
     {
-        if (byEntity.Api is not ICoreClientAPI capi)
+        if (byEntity.Api is not ICoreClientAPI capi || capi.World == null)
             return;
-
-        var player = capi.World?.Player;
+        var player = capi.World.Player;
         if (player == null)
             return;
 
@@ -420,10 +420,10 @@ public class ItemTrowel : Item
         }
 
         BlockPos center = player.Entity.Pos.AsBlockPos;
-        BlockPos hover = (player.CurrentBlockSelection?.Position) ?? null;
-        BlockPos selA = GetSelectionPos(player.Entity, AttrSelStart);
-        BlockPos selB = GetSelectionPos(player.Entity, AttrSelEnd);
-        int mode = player.InventoryManager?.ActiveHotbarSlot?.Itemstack?.Attributes?.GetInt("toolMode", 0) ?? 0;
+        BlockPos? hover = (player.CurrentBlockSelection?.Position) ?? null;
+        BlockPos? selA = GetSelectionPos(player.Entity, AttrSelStart);
+        BlockPos? selB = GetSelectionPos(player.Entity, AttrSelEnd);
+        int mode = player.InventoryManager?.ActiveHotbarSlot?.Itemstack?.Attributes.GetInt("toolMode", 0) ?? 0;
 
         bool movedFar =
             lastOverlayCenter == null
@@ -440,7 +440,7 @@ public class ItemTrowel : Item
             return;
         }
 
-        lastOverlayCenter = center?.Copy();
+        lastOverlayCenter = center.Copy();
         lastOverlayStart = selA?.Copy();
         lastOverlayEnd = selB?.Copy();
         lastOverlayHover = hover?.Copy();
@@ -490,7 +490,7 @@ public class ItemTrowel : Item
         capi.World.HighlightBlocks(player, TROWEL_HIGHLIGHT_SLOT_ID, blockHighlightPositions, blockHighlightColors);
     }
 
-    private static bool BlockPosEqual(BlockPos a, BlockPos b)
+    private static bool BlockPosEqual(BlockPos? a, BlockPos? b)
     {
         if (a == null && b == null)
             return true;

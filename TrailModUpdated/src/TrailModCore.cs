@@ -51,8 +51,9 @@ public class TrailModCore : ModSystem
 {
     TrailModConfig config = new();
 
-    private Harmony harmony;
-    private TrailChunkManager trailChunkManager;
+    private Harmony? harmony;
+    // server-side only
+    private TrailChunkManager? trailChunkManager;
 
     public override double ExecuteOrder()
     {
@@ -191,7 +192,7 @@ public class TrailModCore : ModSystem
 
     public override void Dispose()
     {
-        harmony.UnpatchAll(harmony.Id);
+        harmony?.UnpatchAll(harmony.Id);
         base.Dispose();
     }
 }

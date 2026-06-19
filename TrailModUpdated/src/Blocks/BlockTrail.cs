@@ -18,7 +18,7 @@ public class BlockTrail : Block
     // To Do: Devolve Trails Over Time
     double lastTrailTouchDay = 0;
 
-    public override void OnServerGameTick(IWorldAccessor world, BlockPos pos, object extra = null)
+    public override void OnServerGameTick(IWorldAccessor world, BlockPos pos, object? extra = null)
     {
         base.OnServerGameTick(world, pos, extra);
 
@@ -27,6 +27,7 @@ public class BlockTrail : Block
         if (world.Calendar.ElapsedDays - lastTrailTouchDay >= GetTrailDevolveDays(endVariant))
         {
             TrailChunkManager trailChunkManager = TrailChunkManager.GetTrailChunkManager();
+            trailChunkManager.worldAccessor ??= world;
 
             //Devolve the block to the previous level.
             double daysSinceTouched = trailChunkManager.worldAccessor.Calendar.ElapsedDays - lastTrailTouchDay;
@@ -59,7 +60,7 @@ public class BlockTrail : Block
             }
 
             AssetLocation devolveBlockAsset = new(devolveBlockCode);
-            Block devolveBlock = world.GetBlock(devolveBlockAsset);
+            Block? devolveBlock = world.GetBlock(devolveBlockAsset);
 
             if (devolveBlock is null)
             {
@@ -89,6 +90,8 @@ public class BlockTrail : Block
         lastTrailTouchDay = lastTouchDay;
 
         TrailChunkManager trailChunkManager = TrailChunkManager.GetTrailChunkManager();
+
+        Debug.Assert(trailChunkManager.worldAccessor != null);
 
         double daysSinceTouched = trailChunkManager.worldAccessor.Calendar.ElapsedDays - lastTrailTouchDay;
 
@@ -151,7 +154,7 @@ public class BlockTrail : Block
 
             AssetLocation devolveSoilBlockAsset = new(devolveToSoilCode);
 
-            Block devolveSoilBlock = trailChunkManager.worldAccessor.GetBlock(devolveSoilBlockAsset);
+            Block? devolveSoilBlock = trailChunkManager.worldAccessor.GetBlock(devolveSoilBlockAsset);
 
             if (devolveSoilBlock is null)
             {

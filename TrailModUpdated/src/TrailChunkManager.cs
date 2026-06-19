@@ -24,7 +24,7 @@ public struct TrailBlockPosEntry
     private BlockPos _blockPos;
     private long _lastTouchTime = -1;
     private long _lastTouchEntID = -1;
-    private EntityPos _lastTouchEntityPos = null;
+    private EntityPos? _lastTouchEntityPos = null;
     private int _touchCount = 0;
 
     const double TRAIL_COOLDOWN_MS = 900000; //Block touch count decays every 15 minutes.
@@ -41,7 +41,7 @@ public struct TrailBlockPosEntry
         set { _lastTouchEntID = value; }
     }
 
-    public EntityPos lastTouchEntityPos
+    public EntityPos? lastTouchEntityPos
     {
         get { return _lastTouchEntityPos; }
         set { _lastTouchEntityPos = value; }
@@ -153,8 +153,8 @@ public class TrailChunkManager
     private static readonly string[] CLAY_TYPE_VARIANTS = { "blue", "fire", "red" };
     private static readonly string[] TRAIL_WEAR_VARIANTS = { "new", "established", "veryestablished", "old" };
 
-    public IWorldAccessor worldAccessor;
-    private ICoreServerAPI serverApi;
+    public IWorldAccessor? worldAccessor;
+    private ICoreServerAPI? serverApi;
 
     private readonly object trailModificationLock = new();
 
@@ -164,7 +164,7 @@ public class TrailChunkManager
     //Current World Trail Data Stored in Memory.
     private readonly Dictionary<IWorldChunk, Dictionary<long, TrailBlockPosEntry>> trailChunkEntries = [];
 
-    public static TrailChunkManager trailChunkManagerSingleton;
+    public static TrailChunkManager? trailChunkManagerSingleton;
 
     private TrailChunkManager() { }
 
@@ -223,7 +223,8 @@ public class TrailChunkManager
 
     public void OnChunkColumnUnloaded(Vec3i chunkCoord)
     {
-        IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunk(chunkCoord.X, chunkCoord.Y, chunkCoord.Z);
+        if (worldAccessor == null) return;
+        IWorldChunk? chunk = worldAccessor.BlockAccessor.GetChunk(chunkCoord.X, chunkCoord.Y, chunkCoord.Z);
 
         //Handle the case where the world is pruned of chunks a runtime.
         if (chunk == null)
@@ -239,6 +240,7 @@ public class TrailChunkManager
 
     private void WriteTrailSaveStateForChunk(IWorldChunk chunk)
     {
+        Debug.Assert(worldAccessor != null);
         Debug.Assert(chunk is IServerChunk);
         IServerChunk serverChunk = (IServerChunk)chunk;
 
@@ -360,7 +362,7 @@ public class TrailChunkManager
 
         for (int i = 0; i < loadedBlockTrailPos.Length; i++)
         {
-            Block loadedBlock = worldAccessor.BlockAccessor.GetBlock(loadedBlockTrailPos[i]);
+            Block? loadedBlock = worldAccessor?.BlockAccessor.GetBlock(loadedBlockTrailPos[i]);
             if (loadedBlock is BlockTrail)
             {
                 BlockTrail loadedTrailBlock = (BlockTrail)loadedBlock;
@@ -393,9 +395,13 @@ public class TrailChunkManager
                         continue;
                     }
 
+                    // this should never occur, but can if function and methods are called out of order.
+                    if (worldAccessor == null)
+                        continue;
+
                     //Handle case where this is an invalid or air block.
-                    Block blockToCheck = worldAccessor.BlockAccessor.GetBlock(posToCheck);
-                    if (blockToCheck.Id == 0)
+                    Block? blockToCheck = worldAccessor?.BlockAccessor.GetBlock(posToCheck);
+                    if (blockToCheck == null || blockToCheck.Id == 0)
                     {
                         timedOutBlocks.Add(blockTrailID);
                         continue;
@@ -406,7 +412,7 @@ public class TrailChunkManager
                         continue;
 
                     //If the block hasn't been touched in the timeout time, clean it up.
-                    if ((worldAccessor.ElapsedMilliseconds - blockPosEntry.lastTouchTime) > TRAIL_POS_MONITOR_TIMEOUT)
+                    if (((worldAccessor?.ElapsedMilliseconds ?? 0) - blockPosEntry.lastTouchTime) > TRAIL_POS_MONITOR_TIMEOUT)
                     {
                         timedOutBlocks.Add(blockTrailID);
                     }
@@ -431,7 +437,7 @@ public class TrailChunkManager
             }
         } // end lock
 
-        serverApi.Event.RegisterCallback(Clean, ((int)TRAIL_CLEANUP_INTERVAL));
+        serverApi?.Event.RegisterCallback(Clean, ((int)TRAIL_CLEANUP_INTERVAL));
     }
 
     private string[] BuildSoilBlockVariants()
@@ -541,13 +547,13 @@ public class TrailChunkManager
         for (int i = 0; i < pretrailFertilityBlockVariants.Length; i++)
         {
             AssetLocation blockAsset = new(pretrailFertilityBlockVariants[i]);
-            Block block = world.GetBlock(blockAsset);
+            Block? block = world.GetBlock(blockAsset);
 
             Debug.Assert(block != null);
 
             string transformCode = TRAIL_CODE + "-" + FERTILITY_VARIANTS[i] + "-" + TRAIL_WEAR_VARIANT_NEW_CODE;
             AssetLocation transformBlockAsset = new(transformCode);
-            Block transformBlock = world.GetBlock(transformBlockAsset);
+            Block? transformBlock = world.GetBlock(transformBlockAsset);
 
             Debug.Assert(transformBlock != null);
 
@@ -782,7 +788,7 @@ public class TrailChunkManager
         {
             AssetLocation blockAsset = new(code);
 
-            Block block = world.GetBlock(blockAsset);
+            Block? block = world.GetBlock(blockAsset);
 
             Debug.Assert(block != null);
 
@@ -835,8 +841,11 @@ public class TrailChunkManager
             AssetLocation blockAsset = new(blockCode);
             AssetLocation transformBlockAsset = new(transformBlockCode);
 
-            Block block = world.GetBlock(blockAsset);
-            Block transformBlock = world.GetBlock(transformBlockAsset);
+            Block? block = world.GetBlock(blockAsset);
+            Block? transformBlock = world.GetBlock(transformBlockAsset);
+
+            if (block is null || transformBlock is null)
+                continue;
 
             int blockID = block.BlockId;
             int transformBlockID = transformBlock.BlockId;
@@ -864,18 +873,18 @@ public class TrailChunkManager
     {
         lock (trailModificationLock)
         {
-            IWorldChunk chunk = touchEnt.World.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            IWorldChunk? chunk = touchEnt.World.BlockAccessor.GetChunkAtBlockPos(blockPos);
             Debug.Assert(chunk != null);
 
             //If this block position doesn't contain a block we should monitor, remove it from tracking.
             if (!ShouldTrackBlockTrailData(block))
                 RemoveBlockPosTrailData(world, blockPos);
 
-            bool touchIsPlayer = (touchEnt is EntityPlayer);
-            if (touchIsPlayer)
+            bool touchIsPlayer = false;
+            if (touchEnt is EntityPlayer eplayer)
             {
-                var eplayer = touchEnt as EntityPlayer;
-                ItemStack held = eplayer?.Player?.InventoryManager?.ActiveHotbarSlot?.Itemstack;
+                touchIsPlayer = true;
+                ItemStack? held = eplayer.Player?.InventoryManager?.ActiveHotbarSlot?.Itemstack;
                 var code = held?.Collectible?.Code;
 
                 if (code != null && code.Domain == "game" && code.Path != null && code.Path.StartsWith("hoe-"))
@@ -989,7 +998,7 @@ public class TrailChunkManager
     {
         lock (trailModificationLock)
         {
-            IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            IWorldChunk? chunk = worldAccessor?.BlockAccessor.GetChunkAtBlockPos(blockPos);
             Debug.Assert(chunk != null);
 
             long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
@@ -1005,7 +1014,7 @@ public class TrailChunkManager
     {
         lock (trailModificationLock)
         {
-            IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            IWorldChunk? chunk = worldAccessor?.BlockAccessor.GetChunkAtBlockPos(blockPos);
             Debug.Assert(chunk != null);
 
             long blockTrailID = ConvertBlockPositionToTrailPosID(blockPos);
@@ -1024,7 +1033,7 @@ public class TrailChunkManager
     {
         lock (trailModificationLock)
         {
-            IWorldChunk chunk = worldAccessor.BlockAccessor.GetChunkAtBlockPos(blockPos);
+            IWorldChunk? chunk = worldAccessor?.BlockAccessor.GetChunkAtBlockPos(blockPos);
             Debug.Assert(chunk != null);
 
             if (trailChunkEntries.ContainsKey(chunk))
@@ -1123,7 +1132,7 @@ public class TrailChunkManager
         if (ent.Code == null)
             return false;
 
-        EntityProperties agentProperties = ent.World.GetEntityType(ent.Code);
+        EntityProperties? agentProperties = ent.World.GetEntityType(ent.Code);
 
         //Hande the case where the entry is invalid, or has been disabled by mod flags.
         if (agentProperties == null)
@@ -1282,8 +1291,9 @@ public class TrailChunkManager
                 else
                 {
                     AssetLocation assetLocation = new(AIR_CODE);
-                    Block airBlock = world.GetBlock(assetLocation);
-                    world.BlockAccessor.SetBlock(airBlock.Id, upPos);
+                    Block? airBlock = world.GetBlock(assetLocation);
+                    if (airBlock != null)
+                        world.BlockAccessor.SetBlock(airBlock.Id, upPos);
                 }
                 break;
 
@@ -1300,8 +1310,9 @@ public class TrailChunkManager
                     else
                     {
                         AssetLocation assetLocation = new(AIR_CODE);
-                        Block airBlock = world.GetBlock(assetLocation);
-                        world.BlockAccessor.SetBlock(airBlock.Id, upPos);
+                        Block? airBlock = world.GetBlock(assetLocation);
+                        if (airBlock != null)
+                            world.BlockAccessor.SetBlock(airBlock.Id, upPos);
                     }
                 }
                 else
@@ -1316,8 +1327,9 @@ public class TrailChunkManager
                         else
                         {
                             AssetLocation assetLocation = new(AIR_CODE);
-                            Block airBlock = world.GetBlock(assetLocation);
-                            world.BlockAccessor.SetBlock(airBlock.Id, upPos);
+                            Block? airBlock = world.GetBlock(assetLocation);
+                            if (airBlock != null)
+                                world.BlockAccessor.SetBlock(airBlock.Id, upPos);
                         }
 
                         return;
@@ -1326,8 +1338,9 @@ public class TrailChunkManager
                     if (upBlock.Code.Path != TALLGRASS_EATEN_CODE)
                     {
                         AssetLocation assetLocation = new(TALLGRASS_EATEN_CODE);
-                        Block grassBlock = world.GetBlock(assetLocation);
-                        world.BlockAccessor.SetBlock(grassBlock.Id, upPos);
+                        Block? grassBlock = world.GetBlock(assetLocation);
+                        if (grassBlock != null)
+                            world.BlockAccessor.SetBlock(grassBlock.Id, upPos);
                     }
                 }
 

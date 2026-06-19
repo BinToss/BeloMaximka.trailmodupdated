@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ProtoBuf;
 using Vintagestory.API.Client;
@@ -14,14 +15,14 @@ namespace TrailModUpdated;
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class TrampleProtection
 {
-    public string PlayerUID;
-    public string LastPlayername;
+    public string? PlayerUID;
+    public string? LastPlayername;
 }
 
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class ChunkTrampleProtectionData
 {
-    public byte[] Data;
+    public byte[] Data = [];
     public int chunkX, chunkY, chunkZ;
 }
 
@@ -30,8 +31,8 @@ public class ModSystemTrampleProtection : ModSystem
     private const string TRAMPLE_PROTECTION_MODDATA = "trailprotection";
     private const string TRAMPLE_PROTECTION_CHANNEL = "trailprotection";
 
-    ICoreAPI api;
-    IServerNetworkChannel serverChannel;
+    ICoreAPI? api;
+    IServerNetworkChannel? serverChannel;
     public override bool ShouldLoad(EnumAppSide forSide)
     {
         return true;
@@ -75,12 +76,14 @@ public class ModSystemTrampleProtection : ModSystem
 
     private void OnChunkData(ChunkTrampleProtectionData msg)
     {
-        IWorldChunk chunk = api.World.BlockAccessor.GetChunk(msg.chunkX, msg.chunkY, msg.chunkZ);
+        IWorldChunk? chunk = api?.World.BlockAccessor.GetChunk(msg.chunkX, msg.chunkY, msg.chunkZ);
         chunk?.SetModdata(TRAMPLE_PROTECTION_MODDATA, msg.Data);
     }
 
     private void AddTrampleProtectionBehavior()
     {
+        Debug.Assert(api != null);
+
         foreach (Block block in api.World.Blocks)
         {
             if (block.Code == null || block.Id == 0) continue;
@@ -104,7 +107,7 @@ public class ModSystemTrampleProtection : ModSystem
 
     public bool TryAddTrampleProtection(BlockPos pos, IPlayer forPlayer)
     {
-        Dictionary<int, TrampleProtection> trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
+        Dictionary<int, TrampleProtection>? trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
 
         if (forPlayer == null)
             return false;
@@ -120,6 +123,9 @@ public class ModSystemTrampleProtection : ModSystem
 
         trampleProtectionsOfChunk.Add(index3d, tramplePro);
         SaveTrampleProtection(trampleProtectionsOfChunk, pos);
+
+        Debug.Assert(api != null);
+
 
         //Quality of Life: If the block we just protected is a plant, see if the block below it is soil and protect that as well.
         Block protectedBlock = this.api.World.BlockAccessor.GetBlock(pos);
@@ -141,11 +147,11 @@ public class ModSystemTrampleProtection : ModSystem
                             downBlockTramplePro.PlayerUID = forPlayer.PlayerUID;
                             downBlockTramplePro.LastPlayername = forPlayer.PlayerName;
 
-                            Dictionary<int, TrampleProtection> downTrampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(downCopy);
+                            Dictionary<int, TrampleProtection>? downTrampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(downCopy);
 
                             int downIndex3d = toLocalIndex(downCopy);
 
-                            if (!downTrampleProtectionsOfChunk.ContainsKey(downIndex3d))
+                            if (downTrampleProtectionsOfChunk?.ContainsKey(downIndex3d) == false)
                             {
                                 downTrampleProtectionsOfChunk.Add(downIndex3d, downBlockTramplePro);
                                 SaveTrampleProtection(downTrampleProtectionsOfChunk, downCopy);
@@ -161,7 +167,7 @@ public class ModSystemTrampleProtection : ModSystem
 
     public bool TryRemoveTrampleProtection(BlockPos pos, IPlayer forPlayer, ref string errorCode)
     {
-        Dictionary<int, TrampleProtection> trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
+        Dictionary<int, TrampleProtection>? trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
 
         if (trampleProtectionsOfChunk == null)
             return false;
@@ -181,7 +187,7 @@ public class ModSystemTrampleProtection : ModSystem
 
     public void ClearTrampleProtection(BlockPos pos)
     {
-        Dictionary<int, TrampleProtection> trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
+        Dictionary<int, TrampleProtection>? trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
         if (trampleProtectionsOfChunk == null) return;
 
         int index3d = toLocalIndex(pos);
@@ -195,7 +201,7 @@ public class ModSystemTrampleProtection : ModSystem
 
     public bool IsTrampleProtected(BlockPos pos)
     {
-        Dictionary<int, TrampleProtection> trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
+        Dictionary<int, TrampleProtection>? trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
 
         if (trampleProtectionsOfChunk == null)
             return false;
@@ -205,11 +211,11 @@ public class ModSystemTrampleProtection : ModSystem
         return trampleProtectionsOfChunk.ContainsKey(index3d);
     }
 
-    Dictionary<int, TrampleProtection> GetOrCreateTrampleProtectionAt(BlockPos pos)
+    Dictionary<int, TrampleProtection>? GetOrCreateTrampleProtectionAt(BlockPos pos)
     {
         byte[] data;
 
-        IWorldChunk chunk = api.World.BlockAccessor.GetChunkAtBlockPos(pos);
+        IWorldChunk? chunk = api?.World.BlockAccessor.GetChunkAtBlockPos(pos);
 
         if (chunk == null)
             return null;
@@ -237,9 +243,9 @@ public class ModSystemTrampleProtection : ModSystem
         return trampleProtectionsOfChunk;
     }
 
-    public TrampleProtection GetTrampleProtection(BlockPos pos)
+    public TrampleProtection? GetTrampleProtection(BlockPos pos)
     {
-        Dictionary<int, TrampleProtection> trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
+        Dictionary<int, TrampleProtection>? trampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(pos);
 
         if (trampleProtectionsOfChunk == null)
             return null;
@@ -261,8 +267,8 @@ public class ModSystemTrampleProtection : ModSystem
 
         byte[] data = SerializerUtil.Serialize(reif);
 
-        IWorldChunk chunk = api.World.BlockAccessor.GetChunk(chunkX, chunkY, chunkZ);
-        chunk.SetModdata(TRAMPLE_PROTECTION_MODDATA, data);
+        IWorldChunk? chunk = api?.World.BlockAccessor.GetChunk(chunkX, chunkY, chunkZ);
+        chunk?.SetModdata(TRAMPLE_PROTECTION_MODDATA, data);
 
         // Todo: Send only to players that have this chunk in their loaded range
         serverChannel?.BroadcastPacket(new ChunkTrampleProtectionData() { chunkX = chunkX, chunkY = chunkY, chunkZ = chunkZ, Data = data });

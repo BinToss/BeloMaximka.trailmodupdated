@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -10,7 +11,7 @@ namespace TrailModUpdated.ModSystems;
 
 public class Commands : ModSystem
 {
-    ICoreServerAPI sapi;
+    ICoreServerAPI? sapi;
 
     public override void StartServerSide(ICoreServerAPI api)
     {
@@ -25,6 +26,8 @@ public class Commands : ModSystem
 
     private TextCommandResult OnRestoreTrails(TextCommandCallingArgs args)
     {
+        if (sapi == null)
+            return TextCommandResult.Error("ServerAPI unavailable; TrailModUpdated.ModSystem.Commands.sapi is null!");
         var ba = sapi.World.BlockAccessor;
 
         // ---------- Build target chunk list (UNION of all sources) ----------
@@ -37,7 +40,7 @@ public class Commands : ModSystem
         TryAddChangedColumnsFromTrailMod(targetColumns);
 
         // (C) All loaded columns (portable across builds)
-        foreach (var kv in sapi.WorldManager.AllLoadedChunks)
+        foreach (var kv in sapi.WorldManager?.AllLoadedChunks ?? [])
         {
             var chunk = kv.Value;
             if (chunk == null) continue;
@@ -84,7 +87,7 @@ public class Commands : ModSystem
                         if (!(path.StartsWith("trail-") || path.StartsWith("soil-"))) continue;
 
                         // Fertility from variant, else parse from path
-                        string fert = null;
+                        string? fert = null;
                         block.Variant?.TryGetValue("fertility", out fert);
                         if (string.IsNullOrEmpty(fert))
                         {
@@ -118,14 +121,16 @@ public class Commands : ModSystem
     {
         try
         {
-            var wm = sapi.WorldManager;
+            var wm = sapi?.WorldManager;
+            if (wm == null) return;
+
             var type = wm.GetType();
 
             var mGet = type.GetMethod("GetChangedChunkColumns")
                       ?? type.GetMethod("GetModifiedChunkColumns")
                       ?? type.GetMethod("get_ChangedChunkColumns");
 
-            IEnumerable<Vec2i> cols = null;
+            IEnumerable<Vec2i>? cols = null;
 
             if (mGet != null && mGet.GetParameters().Length == 0)
             {
@@ -179,6 +184,7 @@ public class Commands : ModSystem
 
     private void EnsureChunkColumnLoaded(Vec2i column)
     {
+        if (sapi == null) return;
         try
         {
             var wm = sapi.WorldManager;
@@ -260,6 +266,7 @@ public class Commands : ModSystem
     private void AddPlayerHalos(HashSet<Vec2i> targetColumns, int radius)
     {
         int cs = GlobalConstants.ChunkSize;
+        Debug.Assert(sapi != null);
         foreach (var plr in sapi.World.AllOnlinePlayers)
         {
             var e = plr.Entity;

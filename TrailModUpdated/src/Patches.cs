@@ -18,7 +18,8 @@ public class OverrideOnEntityCollide
 {
     private struct DeferredTransform
     {
-        public BlockPos pos;
+        // ? when is this ever not null? I can't find any assignments or deserializations.
+        public BlockPos? pos;
         public int blockId;
         public long entityId;
         public long enqueuedTime;
@@ -197,19 +198,22 @@ public class OverrideOnEntityCollide
                         {
                             if (transform.snowLevel == 1)
                             {
-                                Block baseSnowBlock = world.GetBlock(snowLayer.CodeWithVariant("height", "1"));
-                                world.BlockAccessor.SetBlock(baseSnowBlock.Id, transform.pos);
+                                Block? baseSnowBlock = world.GetBlock(snowLayer.CodeWithVariant("height", "1"));
+                                if (baseSnowBlock != null)
+                                    world.BlockAccessor.SetBlock(baseSnowBlock.Id, transform.pos);
                             }
                             else
                             {
-                                Block newSnowBlock = world.GetBlock(snowLayer.CodeWithVariant("height", "" + (transform.snowLevel - 1)));
-                                world.BlockAccessor.SetBlock(newSnowBlock.Id, transform.pos);
+                                Block? newSnowBlock = world.GetBlock(snowLayer.CodeWithVariant("height", "" + (transform.snowLevel - 1)));
+                                if (newSnowBlock != null)
+                                    world.BlockAccessor.SetBlock(newSnowBlock.Id, transform.pos);
                             }
                         }
                         else if (block.Variant.ContainsKey("tallgrass"))
                         {
-                            Block baseTallGrassBlock = world.GetBlock(block.CodeWithVariant("cover", "snow"));
-                            world.BlockAccessor.SetBlock(baseTallGrassBlock.Id, transform.pos);
+                            Block? baseTallGrassBlock = world.GetBlock(block.CodeWithVariant("cover", "snow"));
+                            if (baseTallGrassBlock != null)
+                                world.BlockAccessor.SetBlock(baseTallGrassBlock.Id, transform.pos);
                         }
                     }
                     break;
@@ -222,10 +226,8 @@ public class OverrideOnEntityCollide
                         foreach (BlockFacing blockFacing in horizontals)
                         {
                             BlockPos possibleIcePos = transform.pos.AddCopy(blockFacing);
+                            // This GetBlock overload returns an air block instead of null
                             Block possibleIceBlock = world.BlockAccessor.GetBlock(possibleIcePos);
-
-                            if (possibleIceBlock == null)
-                                continue;
 
                             if (possibleIceBlock is BlockLakeIce)
                             {
@@ -248,6 +250,9 @@ public class OverrideOnEntityCollide
 
         while (processed < DEFERRED_BATCH_SIZE && deferredTransforms.TryDequeue(out DeferredTransform transform))
         {
+            // Can't process if block position is unset
+            if (transform.pos == null)
+                continue;
 
             // Verify block still exists and hasn't changed
             Block currentBlock = world.BlockAccessor.GetBlock(transform.pos);
@@ -255,7 +260,7 @@ public class OverrideOnEntityCollide
                 continue;
 
             // Try to find the entity - if it's gone, skip
-            Entity touchEntity = world.GetEntityById(transform.entityId);
+            Entity? touchEntity = world.GetEntityById(transform.entityId);
             if (touchEntity == null || !touchEntity.Alive)
                 continue;
 

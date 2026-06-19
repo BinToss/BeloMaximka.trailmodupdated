@@ -61,10 +61,10 @@ public class BlockBehaviorTrampleProtection(Block block) : BlockBehavior(block)
 
         if (modTramplePro.IsTrampleProtected(pos))
         {
-            TrampleProtection trampleProtection = modTramplePro.GetTrampleProtection(pos);
+            TrampleProtection? trampleProtection = modTramplePro.GetTrampleProtection(pos);
 
             StringBuilder sb = new();
-            sb.AppendLine(Lang.Get("Has been trample protected by {0}.", trampleProtection.LastPlayername));
+            sb.AppendLine(Lang.Get("Has been trample protected by {0}.", trampleProtection?.LastPlayername ?? "<null reference>"));
 
             return sb.ToString();
         }
