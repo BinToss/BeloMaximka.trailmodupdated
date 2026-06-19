@@ -130,34 +130,29 @@ public class ModSystemTrampleProtection : ModSystem
         //Quality of Life: If the block we just protected is a plant, see if the block below it is soil and protect that as well.
         Block protectedBlock = this.api.World.BlockAccessor.GetBlock(pos);
 
-        if (protectedBlock.Id != 0)
+        // wth is this nesting?
+        if (protectedBlock.Id != 0
+            && protectedBlock.BlockMaterial == EnumBlockMaterial.Plant)
         {
-            if (protectedBlock.BlockMaterial == EnumBlockMaterial.Plant)
+            BlockPos downCopy = pos.DownCopy();
+            Block downBlock = this.api.World.BlockAccessor.GetBlock(downCopy);
+
+            if (downBlock.Id != 0
+                && CanHaveTrampleProtection(downBlock)
+                && downBlock.BlockMaterial == EnumBlockMaterial.Soil)
             {
-                BlockPos downCopy = pos.DownCopy();
-                Block downBlock = this.api.World.BlockAccessor.GetBlock(downCopy);
+                TrampleProtection downBlockTramplePro = new();
+                downBlockTramplePro.PlayerUID = forPlayer.PlayerUID;
+                downBlockTramplePro.LastPlayername = forPlayer.PlayerName;
 
-                if (downBlock.Id != 0)
+                Dictionary<int, TrampleProtection>? downTrampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(downCopy);
+
+                int downIndex3d = toLocalIndex(downCopy);
+
+                if (downTrampleProtectionsOfChunk?.ContainsKey(downIndex3d) == false)
                 {
-                    if (CanHaveTrampleProtection(downBlock))
-                    {
-                        if (downBlock.BlockMaterial == EnumBlockMaterial.Soil)
-                        {
-                            TrampleProtection downBlockTramplePro = new();
-                            downBlockTramplePro.PlayerUID = forPlayer.PlayerUID;
-                            downBlockTramplePro.LastPlayername = forPlayer.PlayerName;
-
-                            Dictionary<int, TrampleProtection>? downTrampleProtectionsOfChunk = GetOrCreateTrampleProtectionAt(downCopy);
-
-                            int downIndex3d = toLocalIndex(downCopy);
-
-                            if (downTrampleProtectionsOfChunk?.ContainsKey(downIndex3d) == false)
-                            {
-                                downTrampleProtectionsOfChunk.Add(downIndex3d, downBlockTramplePro);
-                                SaveTrampleProtection(downTrampleProtectionsOfChunk, downCopy);
-                            }
-                        }
-                    }
+                    downTrampleProtectionsOfChunk.Add(downIndex3d, downBlockTramplePro);
+                    SaveTrampleProtection(downTrampleProtectionsOfChunk, downCopy);
                 }
             }
         }
