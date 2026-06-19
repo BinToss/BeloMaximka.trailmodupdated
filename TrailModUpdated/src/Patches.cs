@@ -19,9 +19,13 @@ public class OverrideOnEntityCollide
     private struct DeferredTransform
     {
         // ? when is this ever not null? I can't find any assignments or deserializations.
+        /// warning CS0649: Field 'OverrideOnEntityCollide.DeferredTransform.pos' is never assigned to, and will always have its default value null
         public BlockPos? pos;
+        /// warning CS0649: Field 'OverrideOnEntityCollide.DeferredTransform.blockId' is never assigned to, and will always have its default value 0
         public int blockId;
+        /// warning CS0649: Field 'OverrideOnEntityCollide.DeferredTransform.entityId' is never assigned to, and will always have its default value 0
         public long entityId;
+        /// warning CS0649: Field 'OverrideOnEntityCollide.DeferredTransform.enqueuedTime' is never assigned to, and will always have its default value 0
         public long enqueuedTime;
     }
 
@@ -33,6 +37,7 @@ public class OverrideOnEntityCollide
         public float snowLevel;
     }
 
+    // ? This queue is always empty. Why?
     private static ConcurrentQueue<DeferredTransform> deferredTransforms = new();
     private static ConcurrentQueue<DeferredSnowIceTransform> deferredSnowIceTransforms = new();
     private const int DEFERRED_BATCH_SIZE = 20;
@@ -242,6 +247,10 @@ public class OverrideOnEntityCollide
         }
     }
 
+    /// <summary>
+    /// This method does nothing becuase <see cref="deferredTransforms"/> is always empty.
+    /// </summary>
+    /// <param name="world"></param>
     private static void ProcessDeferredTransforms(IWorldAccessor world)
     {
         int processed = 0;

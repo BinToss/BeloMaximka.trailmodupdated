@@ -190,6 +190,7 @@ public class Commands : ModSystem
         return false;
     }
 
+    // todo: add non-nullable ICoreServerAPI sapi param; change to static member.
     // Add a 3x3 (radius=1) or 5x5 (radius=2) halo around each online player
     private void AddPlayerHalos(HashSet<Vec2i> targetColumns, int radius)
     {

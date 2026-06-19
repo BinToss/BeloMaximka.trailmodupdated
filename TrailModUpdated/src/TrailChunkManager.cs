@@ -153,6 +153,10 @@ public class TrailChunkManager
     private static readonly string[] CLAY_TYPE_VARIANTS = { "blue", "fire", "red" };
     private static readonly string[] TRAIL_WEAR_VARIANTS = { "new", "established", "veryestablished", "old" };
 
+    // todo: consider changing these to getters that throw if the underlying field is null e.g.
+    // public IWorldAccessor worldAccessor => _worldAccessor
+    //  ?? throw new NullReferenceException($`{nameof(worldAccessor) must be set via {nameof(InitData(world, sapi))}.`;
+    // todo: BREAKING CHANGE: rename to WorldAccessor;
     public IWorldAccessor? worldAccessor;
     private ICoreServerAPI? serverApi;
 
@@ -164,6 +168,7 @@ public class TrailChunkManager
     //Current World Trail Data Stored in Memory.
     private readonly Dictionary<IWorldChunk, Dictionary<long, TrailBlockPosEntry>> trailChunkEntries = [];
 
+    // todo: change "public" modifier to "internal" to resolve CA2211: Non-constant fields should not be visible
     public static TrailChunkManager? trailChunkManagerSingleton;
 
     private TrailChunkManager() { }
@@ -1152,6 +1157,7 @@ public class TrailChunkManager
         return false;
     }
 
+    // todo: BREAKING CHANGE: add `static` modifier
     public bool ShouldTrackBlockTrailData(Block block)
     {
         if (trailBlockTouchTransforms.ContainsKey(block.Id))
