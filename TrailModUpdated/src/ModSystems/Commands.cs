@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
@@ -33,13 +32,7 @@ public class Commands : ModSystem
         // ---------- Build target chunk list (UNION of all sources) ----------
         var targetColumns = new HashSet<Vec2i>();
 
-        // (A) Engine-exposed “changed columns”
-        TryAddChangedColumnsFromVanilla(targetColumns);
-
-        // (B) Trail mod's own tracker (optional)
-        TryAddChangedColumnsFromTrailMod(targetColumns);
-
-        // (C) All loaded columns (portable across builds)
+        // All loaded columns (portable across builds)
         foreach (var kv in sapi.WorldManager?.AllLoadedChunks ?? [])
         {
             var chunk = kv.Value;
@@ -116,71 +109,6 @@ public class Commands : ModSystem
     }
 
     // ---------- Helpers ----------
-
-    private void TryAddChangedColumnsFromVanilla(HashSet<Vec2i> targetColumns)
-    {
-        try
-        {
-            var wm = sapi?.WorldManager;
-            if (wm == null) return;
-
-            var type = wm.GetType();
-
-            var mGet = type.GetMethod("GetChangedChunkColumns")
-                      ?? type.GetMethod("GetModifiedChunkColumns")
-                      ?? type.GetMethod("get_ChangedChunkColumns");
-
-            IEnumerable<Vec2i>? cols = null;
-
-            if (mGet != null && mGet.GetParameters().Length == 0)
-            {
-                var res = mGet.Invoke(wm, null) as System.Collections.IEnumerable;
-                cols = res?.Cast<object>().Select(o => (Vec2i)o);
-            }
-            else
-            {
-                var p = type.GetProperty("ChangedChunkColumns")
-                     ?? type.GetProperty("ModifiedChunkColumns");
-                if (p != null)
-                {
-                    var res = p.GetValue(wm) as System.Collections.IEnumerable;
-                    cols = res?.Cast<object>().Select(o => (Vec2i)o);
-                }
-            }
-
-            if (cols != null)
-            {
-                foreach (var c in cols) targetColumns.Add(new Vec2i(c.X, c.Y));
-            }
-        }
-        catch { /* not exposed on this build */ }
-    }
-
-    private void TryAddChangedColumnsFromTrailMod(HashSet<Vec2i> targetColumns)
-    {
-        try
-        {
-            var tcmType = Type.GetType("TrailModUpdated.TrailChunkManager, TrailModUpdated");
-            if (tcmType == null) return;
-
-            var field = tcmType.GetField("ChangedColumns")
-                       ?? tcmType.GetField("ModifiedColumns");
-            if (field?.GetValue(null) is System.Collections.IEnumerable fset)
-            {
-                foreach (var o in fset) targetColumns.Add((Vec2i)o);
-                return;
-            }
-
-            var prop = tcmType.GetProperty("ChangedColumns")
-                      ?? tcmType.GetProperty("ModifiedColumns");
-            if (prop?.GetValue(null) is System.Collections.IEnumerable pset)
-            {
-                foreach (var o in pset) targetColumns.Add((Vec2i)o);
-                return;
-            }
-        }
-        catch { /* optional */ }
-    }
 
     private void EnsureChunkColumnLoaded(Vec2i column)
     {
