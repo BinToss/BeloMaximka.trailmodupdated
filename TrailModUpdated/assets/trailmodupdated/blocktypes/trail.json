@@ -18,7 +18,7 @@
     "snowed": { "base": "block/trail/snow/normal" },
     "specialSecondTexture": { "base": "block/trail/trailwear/wear{trailwear}" }
   },
-  "attributes": { "mapColorCode": "land", "ignoreTintInventory": true },
+  "attributes": { "mapColorCode": "road", "ignoreTintInventory": true },
   "texturesInventory": {
     "down": { "base": "game:block/soil/fert{fertility}" },
     "horizontals": { "base": "game:block/soil/fert{fertility}", "overlays": ["block/trail/trailwear/inventory/side_{trailwear}"] },

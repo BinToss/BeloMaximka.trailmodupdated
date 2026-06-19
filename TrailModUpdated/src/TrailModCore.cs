@@ -11,6 +11,13 @@ namespace TrailModUpdated;
 [ProtoContract(ImplicitFields = ImplicitFields.AllFields)]
 public class TrailModConfig
 {
+    /// <summary>
+    /// Whether trails will be colored as "road" on maps.
+    /// If <c>false</c>, trails will be colored as "land".
+    /// </summary>
+    /// <value>Default: <c>true</c></value>
+    /// <remarks>Side: server</remarks>
+    public bool TrailsVisibleOnMap { get; set; } = true;
     public bool CreativeTrampling { get; set; } = false;
     public bool DirtRoadsOnly { get; set; } = false;
     public bool FoliageTrampleSounds { get; set; } = true;
@@ -147,6 +154,9 @@ public class TrailModCore : ModSystem
 
         // NEW: whether to render the protection overlay on clients
         api.World.Config.SetBool("trailmodShowOverlay", config.ShowProtectionOverlay);
+
+        // Whether trails should be colored as roads on maps
+        api.World.Config.SetBool("trailsVisibleOnMap", config.TrailsVisibleOnMap);
     }
 
     private void ApplyConfigGlobalConsts()

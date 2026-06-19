@@ -10,5 +10,13 @@
     "file": "blocktypes/trail.json",
     "condition": { "when": "dirtRoadsOnly", "isValue": "true" },
     "side": "Server"
+  },
+  {
+    condition: { when: "trailsVisibleOnMap", isValue: "false" },
+    file: "blocktypes/trail.json",
+    op: "replace",
+    path: "/attributes/mapColorCode",
+    value: "land",
+    side: "Server"
   }
 ]
