@@ -70,12 +70,12 @@ public class Commands : ModSystem
             int baseX = col.X * GlobalConstants.ChunkSize;
             int baseZ = col.Y * GlobalConstants.ChunkSize;
 
-            var pos = new BlockPos();
+            var pos = new BlockPos(0, 0, 0);
             for (int x = 0; x < GlobalConstants.ChunkSize; x++)
                 for (int z = 0; z < GlobalConstants.ChunkSize; z++)
                     for (int y = 0; y < mapY; y++)
                     {
-                        pos.Set(baseX + x, y, baseZ + z);
+                        pos.SetAndCorrectDimension(baseX + x, y, baseZ + z);
                         var block = ba.GetBlock(pos);
                         if (block?.Code == null) continue;
 
