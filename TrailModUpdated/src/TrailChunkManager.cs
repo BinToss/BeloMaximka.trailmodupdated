@@ -170,10 +170,7 @@ public class TrailChunkManager
 
     public static TrailChunkManager GetTrailChunkManager()
     {
-        if (trailChunkManagerSingleton == null)
-            trailChunkManagerSingleton = new TrailChunkManager();
-
-        return trailChunkManagerSingleton;
+        return trailChunkManagerSingleton ??= new TrailChunkManager();
     }
 
     /*
