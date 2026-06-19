@@ -111,12 +111,11 @@ public class OverrideOnEntityCollide
         if (!anyNearby)
             return;
 
-        if (entity is EntityPlayer)
+        if (entity is EntityPlayer entityPlayer
+            && entityPlayer.Player.WorldData.CurrentGameMode != EnumGameMode.Survival
+            && (!TrailModGlobals.CreativeTrampling || entityPlayer.Player.WorldData.CurrentGameMode != EnumGameMode.Creative))
         {
-            EntityPlayer entityPlayer = (EntityPlayer)entity;
-            if (entityPlayer.Player.WorldData.CurrentGameMode != EnumGameMode.Survival)
-                if (!TrailModGlobals.CreativeTrampling || entityPlayer.Player.WorldData.CurrentGameMode != EnumGameMode.Creative)
-                    return;
+            return;
         }
 
         if (world.Side == EnumAppSide.Client)
