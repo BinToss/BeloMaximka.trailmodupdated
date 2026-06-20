@@ -4,6 +4,7 @@ namespace TrailModUpdated;
 
 public static class TrailModGlobals
 {
+    // todo: BREAKING CHANGE: remove obsolete class member
     [Obsolete($"Use {nameof(CreativeTrampling)} instead.")]
     public static bool CeativeTrampling { get => CreativeTrampling; set => CreativeTrampling = value; }
     public static bool CreativeTrampling { get; set; } = false;
