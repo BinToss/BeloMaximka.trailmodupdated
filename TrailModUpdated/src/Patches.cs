@@ -177,8 +177,10 @@ public class OverrideOnEntityCollide
         {
             if (Interlocked.CompareExchange(ref lastDeferredProcessTime, currentTime, prevTime) == prevTime)
             {
-                ProcessDeferredSnowIceTransforms(world);
-                ProcessDeferredTransforms(world);
+                if (!deferredSnowIceTransforms.IsEmpty)
+                    ProcessDeferredSnowIceTransforms(world);
+                if (!deferredTransforms.IsEmpty)
+                    ProcessDeferredTransforms(world, trailChunkManager);
             }
         }
     }
