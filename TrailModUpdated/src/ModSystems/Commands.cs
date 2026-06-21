@@ -73,8 +73,16 @@ public class Commands : ModSystem
                         if (block?.Code == null) continue;
 
                         // Only our mod’s trail/soil blocks from either old or new modid
-                        string domain = block.Code.Domain;
-                        if (domain != "trailmodupdated" && domain != "trailmod") continue;
+                        // or from trail-slab mods
+                        // todo: or from trail-layering mods (when it exists: Wilderlands Soil Layering + Trails).
+                        switch (block.Code.Domain)
+                        {
+                            case "terrainslabs":
+                            case "trailmod":
+                            case "trailmodupdated": break;
+                            // skip this block
+                            default: continue;
+                        }
 
                         var path = block.Code.Path;
                         if (!(path.StartsWith("trail-") || path.StartsWith("soil-"))) continue;
@@ -96,7 +104,46 @@ public class Commands : ModSystem
                             soilCache[fert] = vanilla;
                         }
 
-                        if (vanilla.BlockId != block.BlockId)
+                        Block? fullBlock = null;
+                        string code = string.Empty;
+
+                        /* This is inelegant. Replacing a block entirely loses
+                         any and all stateful properties that could be
+                         preserved. But if it's more performant than tracking
+                         blocks' "trail" status via variants, attributes, or
+                         some other property; then so be it.*/
+                        /* todo: explore "patching" trails to a non-trail state
+                        instead of replacing them. Is performance acceptable? Is
+                        memory usage better or worse? */
+                        /** todo: check if trail devolve/regrowth/restoration needs mod compatibility. See <see cref="BlockTrail.OnServerGameTick"/>*/
+                        /** todo: add trailSlabCache, trailLayeredCache */
+
+                        // `terrainslabs` (TerrainSlabsTrailModCompatibility)
+                        if (block.Class == "BlockTrailSlab")
+                        {
+                            string domain = true == block.Variant?.TryGetValue("domain", out string _domain)
+                                ? _domain
+                                : "game";
+                            // terrainslabs stores the original {domain} as as variant e.g. "terrainslabs:soil-game". That's clever!
+                            code = $"terrainslabs:soil-{domain}-{fert}-none";
+                        }
+                        // todo: `wilderlandssoillayering` (trail-layering currently nonexistent; this is prep)
+                        else if (block.Class == "BlockTrailLayered")
+                        {
+                            // "wilderlandssoillayering:soil-layered-{fertility}-{grasscoverage}-{layer}"
+                            string layerLevel = true == block.Variant?.TryGetValue("layer", out string layer)
+                                ? layer
+                                : "1";
+                            code = $"wilderlandssoillayering:soil-layered-{fert}-none-{layerLevel}";
+                        }
+
+                        fullBlock = sapi.World.GetBlock(new AssetLocation(code));
+                        if (fullBlock != null)
+                        {
+                            ba.SetBlock(fullBlock.BlockId, pos);
+                            changedBlocks++;
+                        }
+                        else if (vanilla.BlockId != block.BlockId)
                         {
                             ba.SetBlock(vanilla.BlockId, pos);
                             changedBlocks++;
