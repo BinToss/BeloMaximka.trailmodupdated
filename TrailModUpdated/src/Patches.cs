@@ -255,10 +255,9 @@ public class OverrideOnEntityCollide
     /// </summary>
     /// <param name="world"></param>
     /// <remarks>Call this method only if `!<see cref="deferredTransforms"/>.IsEmpty`.</remarks>
-    private static void ProcessDeferredTransforms(IWorldAccessor world)
+    private static void ProcessDeferredTransforms(IWorldAccessor world, TrailChunkManager trailChunkManager)
     {
         int processed = 0;
-        TrailChunkManager trailChunkManager = TrailChunkManager.GetTrailChunkManager();
 
         while (processed < DEFERRED_BATCH_SIZE && deferredTransforms.TryDequeue(out DeferredTransform transform))
         {
