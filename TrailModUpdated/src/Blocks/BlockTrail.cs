@@ -15,7 +15,7 @@ public class BlockTrail : Block
 
     private readonly string[] trailVariants = { "pretrail", "new", "established", "veryestablished", "old" };
 
-    // To Do: Devolve Trails Over Time
+    // todo: Devolve Trails Over Time
     double lastTrailTouchDay = 0;
 
     public override void OnServerGameTick(IWorldAccessor world, BlockPos pos, object? extra = null)

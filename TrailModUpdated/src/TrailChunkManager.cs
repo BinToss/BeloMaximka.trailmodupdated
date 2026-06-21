@@ -658,7 +658,7 @@ public class TrailChunkManager
 
         for (int soilFertilityVariantIndex = 0; soilFertilityVariantIndex < soilFertilityBlockVariants.Length; soilFertilityVariantIndex++)
         {
-            //To do rework this to turn into trails.
+            // todo: rework this to turn into trails.
             BuildTrailTouchBlockVariantProgression(
                 world,
                 soilFertilityBlockVariants[soilFertilityVariantIndex],
