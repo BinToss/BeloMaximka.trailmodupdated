@@ -128,6 +128,7 @@ public class TrailChunkManager
     public const string TRAIL_MOD_DATA_SAVE_KEY_BLOCK_TRAIL_LAST_TOUCH_DAY = "trailModChunkData_LastTouchDay";
     public const string TRAIL_MOD_DATA_SAVE_KEY_BLOCK_TRAIL_BLOCK_POS = "trailModChunkData_BlockTrailBlockPos";
 
+    /// todo: de-duplicate const strings; Some of these are also defined in <see cref="BlockTrail"/>. Move to globals as `internal` fields?
     const string AIR_CODE = "game:air";
     const string SOIL_CODE = "soil";
     const string SOIL_LOW_NONE_CODE = "soil-low-none";
