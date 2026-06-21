@@ -18,6 +18,14 @@ public class BlockTrail : Block
     // todo: Devolve Trails Over Time
     double lastTrailTouchDay = 0;
 
+    /// <summary>
+    /// Determine if this block should be devolved (incrementally restored) to a
+    /// non-trail block.
+    /// <br/><inheritdoc cref="Block.OnServerGameTick" path="/summary"/>
+    /// </summary>
+    /// <param name="world"></param>
+    /// <param name="pos"></param>
+    /// <param name="extra"></param>
     public override void OnServerGameTick(IWorldAccessor world, BlockPos pos, object? extra = null)
     {
         base.OnServerGameTick(world, pos, extra);
