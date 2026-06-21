@@ -252,6 +252,7 @@ public class OverrideOnEntityCollide
     /// This method does nothing because <see cref="deferredTransforms"/> is always empty.
     /// </summary>
     /// <param name="world"></param>
+    /// <remarks>Call this method only if `!<see cref="deferredTransforms"/>.IsEmpty`.</remarks>
     private static void ProcessDeferredTransforms(IWorldAccessor world)
     {
         int processed = 0;
