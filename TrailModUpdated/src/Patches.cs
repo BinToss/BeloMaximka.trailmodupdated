@@ -51,6 +51,7 @@ public class OverrideOnEntityCollide
         return true;
     }
 
+    // todo: defer non-snow/ice transforms. `deferredTransforms` is unused.
     [HarmonyPatch(nameof(Block.OnEntityCollide))]
     [HarmonyPostfix]
     static void OnEntityCollideOverride(
