@@ -80,7 +80,7 @@
 
 	//HANDBOOK
 	"trailmodupdated:gamemechanicinfo-trails-title": "Game Mechanic: Natural Trails & Roads",
-	"trailmodupdated:gamemechanicinfo-trails-text": "<strong>Overview</strong><br>Trails are created naturally by the people and animals moving through the environment. These organic routes alter the landscape, cutting trails, paths, and roads through once pristine wilderness. The more traffic a route experiences the faster and more established the trail will become.",
+	"trailmodupdated:gamemechanicinfo-trails-text": "<strong>Overview</strong><br>Trails are created naturally by the people and animals moving through the environment. These organic routes alter the landscape, cutting trails, paths, and roads through once pristine wilderness. The more traffic a route experiences the faster and more established the trail will become.\n\nThere are several methods of preventing trail creating. \n1. Hold a <a href=\"handbooksearch://hoe\">hoe</a> while traversing soil. The trail-creation checks are skipped while you hold a hoe.\n2. Use a <a href=\"handbook://trailmodupdated:trowel-handbook-help\">trowel</a> to set trample protection on soil and plants.",
 
 	"trailmodupdated:trowel-handbook-help-title": "How to use",
 	"trailmodupdated:trowel-handbook-help-text": "The garden trowel allows you to mark soil and plant blocks as trample protected, which means they will never be trampled and will not develop trails no matter how much you walk on them. <hk>rightmouse</hk> click on a block with the garden trowel in your hands to give the block trample protection. <hk>leftmouse</hk> click to remove the trample protection.\n\nIf you trample protect a plant or flower, the soil block below it will also be trample protected."
