@@ -1,11 +1,11 @@
-{	
+{
 	//BLOCKS
 	"block-soil-verylow-pretrail": "Suelo estéril (Pisoteado)",
 	"block-trail-verylow-new": "Sendero salvaje (Suelo estéril)",
 	"block-trail-verylow-established": "Sendero establecido (Suelo estéril)",
 	"block-trail-verylow-veryestablished": "Camino de tierra (Suelo estéril)",
 	"block-trail-verylow-old": "Carretera (Suelo estéril)",
-	
+
 	"block-soil-low-pretrail": "Suelo de baja fertilidad (Pisoteado)",
 	"block-trail-low-new": "Sendero salvaje (Suelo de baja fertilidad)",
 	"block-trail-low-established": "Sendero establecido (Suelo de baja fertilidad)",
@@ -29,7 +29,7 @@
 	"block-trail-high-established": "Sendero establecido (Terra preta)",
 	"block-trail-high-veryestablished": "Camino de tierra (Terra preta)",
 	"block-trail-high-old": "Carretera (Terra preta)",
-	
+
 	"block-cairn-andesite-*": "Montón de andesita",
 	"block-cairn-chalk-*": "Montón de tiza",
 	"block-cairn-chert-*": "Montón de sílex",
@@ -53,7 +53,7 @@
 	"block-cairn-scoria-*": "Montón de escoria",
 	"block-cairn-tuff-*": "Montón de toba",
 	"block-cairn-halite-*": "Montón de halita",
-	
+
 	//HANDBOOK
 	"gamemechanicinfo-trails-title": "Mecánica de juego: Senderos y caminos naturales",
 	"gamemechanicinfo-trails-text": "<strong>Visión general</strong><br>Los senderos son creados naturalmente por las personas y los animales que se mueven a través del entorno. Estas rutas orgánicas alteran el paisaje, cortando senderos, caminos y carreteras a través de una naturaleza salvaje una vez prístina. Cuanto más tráfico experimente una ruta, más rápido y estable se volverá el sendero."

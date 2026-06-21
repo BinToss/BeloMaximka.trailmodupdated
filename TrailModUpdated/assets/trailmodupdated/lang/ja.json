@@ -1,11 +1,11 @@
-{	
+{
 	//BLOCKS
 	"block-soil-verylow-pretrail": "やせた土（踏みつけられた）",
 	"block-trail-verylow-new": "自然歩道（やせた土）",
 	"block-trail-verylow-established": "定着した歩道（やせた土）",
 	"block-trail-verylow-veryestablished": "砂利道（やせた土）",
 	"block-trail-verylow-old": "幹線道路（やせた土）",
-	
+
 	"block-soil-low-pretrail": "少し肥沃な土（踏みつけられた）",
 	"block-trail-low-new": "自然歩道（少し肥沃な土）",
 	"block-trail-low-established": "定着した歩道（少し肥沃な土）",
@@ -29,7 +29,7 @@
 	"block-trail-high-established": "定着した歩道（テラ・プレタ）",
 	"block-trail-high-veryestablished": "砂利道（テラ・プレタ）",
 	"block-trail-high-old": "幹線道路（テラ・プレタ）",
-   
+
 	"block-cairn-andesite-*": "安山岩の石塚",
 	"block-cairn-chalk-*": "チョーク石の石塚",
 	"block-cairn-chert-*": "チャート石の石塚",
@@ -55,7 +55,7 @@
 	"block-cairn-halite-*": "岩塩の石塚",
 
 	//HANDBOOK
-	"gamemechanicinfo-trails-title": "ゲームメカニクス：自然歩道と道路" ,
+	"gamemechanicinfo-trails-title": "ゲームメカニクス：自然歩道と道路",
 	"gamemechanicinfo-trails-text": "<strong>概要</strong><br>歩道は、環境の中を移動する人々や動物たちによって自然に作られます。こうした有機的なルートは、かつては手つかずの原野だった場所に小道や砂利道、道路を切り開き、風景を変えます。交通量が多ければ多いほど、歩道はより早く、より定着したものになります。"
 
 }

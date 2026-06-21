@@ -1,11 +1,11 @@
-{	
+{
 	//BLOCKS
 	"block-soil-verylow-pretrail": "Barren soil (trampled)",
 	"block-trail-verylow-new": "Wilderness trail (Barren soil)",
 	"block-trail-verylow-established": "Established trail (Barren soil)",
 	"block-trail-verylow-veryestablished": "Dirt road (Barren soil)",
 	"block-trail-verylow-old": "Highway (Barren soil)",
-	
+
 	"block-soil-low-pretrail": "Low fertility soil (trampled)",
 	"block-trail-low-new": "Wilderness trail (Low fertility soil)",
 	"block-trail-low-established": "Established trail (Low fertility soil)",
@@ -29,7 +29,7 @@
 	"block-trail-high-established": "Established trail (terra preta)",
 	"block-trail-high-veryestablished": "Dirt road (terra preta)",
 	"block-trail-high-old": "Highway (terra preta)",
-   
+
 	"block-cairn-andesite-*": "Andesite cairn",
 	"block-cairn-chalk-*": "Chalk cairn",
 	"block-cairn-chert-*": "Chert cairn",
@@ -79,7 +79,7 @@
 	"trailmodupdated:heldhelp-removetrampleprotection": "Remove trample protection",
 
 	//HANDBOOK
-	"trailmodupdated:gamemechanicinfo-trails-title": "Game Mechanic: Natural Trails & Roads" ,
+	"trailmodupdated:gamemechanicinfo-trails-title": "Game Mechanic: Natural Trails & Roads",
 	"trailmodupdated:gamemechanicinfo-trails-text": "<strong>Overview</strong><br>Trails are created naturally by the people and animals moving through the environment. These organic routes alter the landscape, cutting trails, paths, and roads through once pristine wilderness. The more traffic a route experiences the faster and more established the trail will become.",
 
 	"trailmodupdated:trowel-handbook-help-title": "How to use",

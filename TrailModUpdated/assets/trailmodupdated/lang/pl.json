@@ -1,5 +1,5 @@
 {
-		//BLOCKS
+	//BLOCKS
 	"block-soil-verylow-pretrail": "Jałowa gleba (zdeptana)",
 	"block-trail-verylow-new": "Dziki szlak (Jałowa gleba)",
 	"block-trail-verylow-established": "Ustanowiony szlak (Jałowa gleba)",
@@ -29,7 +29,7 @@
 	"block-trail-high-established": "Ustalony szlak (czarnoziem)",
 	"block-trail-high-veryestablished": "Droga polna (czarnoziem)",
 	"block-trail-high-old": "Autostrada (czarnoziem)",
-	   
+
 	"block-cairn-andesite-*": "Kopiec andezytowy",
 	"block-cairn-chalk-*": "Kopiec kredowy",
 	"block-cairn-chert-*": "Kopiec rogowcowy",
@@ -57,11 +57,11 @@
 	//TOOLS
 	"trailmodupdated:item-trowel-copper": "Miedziana kielnia ogrodowa",
 	"trailmodupdated:item-trowel-tinbronze": "kielnia ogrodowa z brązu cynowego",
-	"trailmodupdated:item-trowel-bismuthbronze": "Kielnia ogrodowa z brązu bizmutowego)",
+	"trailmodupdated:item-trowel-bismuthbronze": "Kielnia ogrodowa z brązu bizmutowego",
 	"trailmodupdated:item-trowel-blackbronze": "Kielnia ogrodowa z czarnego brązu",
 	"trailmodupdated:item-trowel-gold": "Złota kielnia ogrodowa",
 	"trailmodupdated:item-trowel-silver": "Srebrna kielnia ogrodowa",
-	"trailmodupdated:item-trowel-iron": "Żelazna kielnia ogrodowa)",
+	"trailmodupdated:item-trowel-iron": "Żelazna kielnia ogrodowa",
 	"trailmodupdated:item-trowel-meteoriciron": "kielnia ogrodowa z żelaza meteorytowego",
 	"trailmodupdated:item-trowel-steel": "Stalowa kielnia ogrodowa",
 	"trailmodupdated:item-trowelhead-copper": "Głowica kielni miedzianej",
@@ -79,7 +79,7 @@
 	"trailmodupdated:heldhelp-removetrampleprotection": "Usuń zabezpieczenie przed deptaniem",
 
 	//HANDBOOK
-	"trailmodupdated:gamemechanicinfo-trails-title": "Mechanika gry: Naturalne szlaki i drogi" ,
+	"trailmodupdated:gamemechanicinfo-trails-title": "Mechanika gry: Naturalne szlaki i drogi",
 	"trailmodupdated:gamemechanicinfo-trails-text": "<strong>Overview</strong><br>Szlaki tworzone są w sposób naturalny przez ludzi i zwierzęta poruszające się w środowisku. Te organiczne trasy zmieniają krajobraz, przecinając szlaki, ścieżki i drogi przez niegdyś dziewiczą dzicz. Im większy ruch na trasie, tym szybszy i bardziej ugruntowany będzie szlak",
 
 	"trailmodupdated:trowel-handbook-help-title": "Jak używać",
